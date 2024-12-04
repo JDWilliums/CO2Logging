@@ -18,7 +18,7 @@ public class MainPage {
         this.userId = userId;
 
         // Create frame
-        frame = new JFrame("Main Page");
+        frame = new JFrame("CO2 Logging");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(600, 400);
         frame.setLocationRelativeTo(null);

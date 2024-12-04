@@ -32,6 +32,7 @@ public class CO2Server {
     private void initializeUsers() {
         users.put("user1", "password123");
         users.put("user2", "password456");
+        users.put("1", "1")
     }
 
     private class ClientHandler implements Runnable {
