@@ -1,11 +1,11 @@
 import java.io.*;
 import java.net.Socket;
 
-public class Client {
+public class CO2Client {
     private final String serverAddress;
     private final int port;
 
-    public Client(String serverAddress, int port) {
+    public CO2Client(String serverAddress, int port) {
         this.serverAddress = serverAddress;
         this.port = port;
     }
@@ -46,7 +46,7 @@ public class Client {
         String serverAddress = args[0];
         int port = Integer.parseInt(args[1]);
 
-        Client client = new Client(serverAddress, port);
+        CO2Client client = new CO2Client(serverAddress, port);
         client.start();
     }
 }
