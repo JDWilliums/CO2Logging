@@ -74,42 +74,49 @@ public class LoginClient {
         loginButton.setBackground(new Color(59, 89, 182));
         loginButton.setForeground(Color.WHITE);
 
-        loginButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String userId = userIdField.getText().trim();
-                String password = new String(passwordField.getPassword()).trim();
+        JButton registerButton = new JButton("Register");
+        registerButton.setFont(new Font("Arial", Font.BOLD, 14));
+        registerButton.setBackground(new Color(59, 89, 182));
+        registerButton.setForeground(Color.WHITE);
 
-                if (userId.isEmpty() || password.isEmpty()) {
-                    messageLabel.setText("User ID and Password cannot be empty.");
+        loginButton.addActionListener(e -> {
+            String userId = userIdField.getText().trim();
+            String password = new String(passwordField.getPassword()).trim();
+
+            if (userId.isEmpty() || password.isEmpty()) {
+                messageLabel.setText("User ID and Password cannot be empty.");
+                return;
+            }
+
+            writer.println(userId + "," + password);
+
+            try {
+                String response = reader.readLine();
+                if (response == null) {
+                    messageLabel.setText("Connection closed by server.");
+                    socket.close();
                     return;
                 }
 
-                writer.println(userId + "," + password);
-
-                try {
-                    String response = reader.readLine();
-                    if (response == null) {
-                        messageLabel.setText("Connection closed by server.");
-                        socket.close();
-                        return;
-                    }
-
-                    if (response.equalsIgnoreCase("Login successful!")) {
-                        JOptionPane.showMessageDialog(frame, "Login successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
-                        frame.dispose();
-                        new MainPage(userId); // Go to mainpage storing user id -----------------------------
-                    } else if (response.equalsIgnoreCase("Goodbye!")) {
-                        JOptionPane.showMessageDialog(frame, "Server closed the connection.", "Disconnected", JOptionPane.WARNING_MESSAGE);
-                        socket.close();
-                        System.exit(0);
-                    } else {
-                        messageLabel.setText(response);
-                    }
-                } catch (IOException ex) {
-                    messageLabel.setText("Connection error. Please try again.");
+                if (response.equalsIgnoreCase("Login successful!")) {
+                    JOptionPane.showMessageDialog(frame, "Login successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    frame.dispose();
+                    new MainPage(userId); // Go to mainpage storing user id
+                } else if (response.equalsIgnoreCase("Goodbye!")) {
+                    JOptionPane.showMessageDialog(frame, "Server closed the connection.", "Disconnected", JOptionPane.WARNING_MESSAGE);
+                    socket.close();
+                    System.exit(0);
+                } else {
+                    messageLabel.setText(response);
                 }
+            } catch (IOException ex) {
+                messageLabel.setText("Connection error. Please try again.");
             }
+        });
+
+        registerButton.addActionListener(e -> {
+            frame.dispose();
+            new RegistrationClient(); // Open Registration page
         });
 
         gbc.gridx = 0;
@@ -134,6 +141,10 @@ public class LoginClient {
 
         gbc.gridx = 1;
         gbc.gridy = 3;
+        formPanel.add(registerButton, gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 4;
         formPanel.add(messageLabel, gbc);
 
         // Add Panels to Frame
