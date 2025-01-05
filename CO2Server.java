@@ -69,7 +69,7 @@ public class CO2Server {
                                 handleLogin(parts, writer);
                                 break;
                             default:
-                                writer.println("Unrecognized command."); // is called if something is broken = format is wrong
+                                writer.println("Unrecognised command."); // is called if something is broken = format is wrong
                                 break;
                         }
                     } else {
