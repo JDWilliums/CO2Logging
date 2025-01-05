@@ -4,17 +4,37 @@ import java.io.*;
 import java.net.Socket;
 
 public class RegistrationClient {
-    private static final String SERVER_IP = "127.0.0.1";  // localhost ip
-    private static final int SERVER_PORT = 12345;         // Need to update to fix this, need to have custom port
+    private String serverIp = "127.0.0.1"; // Default IP
+    private int serverPort = 12345;       // Default port
 
-    public RegistrationClient() {
+    public static void main(String[] args) {
+        
+        String ip = "127.0.0.1";
+        int port = 12345;
+
+        if (args.length >= 2) {
+            ip = args[0];
+            port = Integer.parseInt(args[1]);
+        } else if (args.length == 1) {
+            port = Integer.parseInt(args[0]);
+        }
+
+        // Make final copies for use in the lambda - fixes compile error
+        final String finalIp = ip;
+        final int finalPort = port;
+        SwingUtilities.invokeLater(() -> new RegistrationClient(finalIp, finalPort));
+    }
+
+    public RegistrationClient(String serverIp, int serverPort) {
+        this.serverIp = serverIp;
+        this.serverPort = serverPort;
         createRegistrationPage();
     }
 
     private void createRegistrationPage() {
         JFrame frame = new JFrame("Register");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(800, 600);
+        frame.setSize(500, 400);
         frame.setLayout(new BorderLayout(10, 10));
 
         // Logo Panel
@@ -36,7 +56,7 @@ public class RegistrationClient {
         JLabel userIdLabel = new JLabel("User ID:");
         JTextField userIdField = new JTextField(20);
 
-        JLabel emailLabel = new JLabel("Email:"); // we do not save email any where, might need to change or remove
+        JLabel emailLabel = new JLabel("Email:");
         JTextField emailField = new JTextField(20);
 
         JLabel passwordLabel = new JLabel("Password:");
@@ -51,14 +71,12 @@ public class RegistrationClient {
         JButton registerButton = new JButton("Register");
         JButton loginButton = new JButton("Login");
 
-        // Register Button Logic
         registerButton.addActionListener(e -> {
             String userId = userIdField.getText().trim();
             String email = emailField.getText().trim();
             String password = new String(passwordField.getPassword()).trim();
             String confirmPassword = new String(confirmPasswordField.getPassword()).trim();
 
-            // basic checks
             if (userId.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
                 messageLabel.setText("All fields are required.");
                 return;
@@ -68,30 +86,29 @@ public class RegistrationClient {
                 return;
             }
 
-            // Build the REGISTER command - needed to send info to server 
+            // Build the REGISTER command
             String command = "REGISTER," + userId + "," + email + "," + password;
 
-            // One Command per Connection:
-            try (Socket socket = new Socket(SERVER_IP, SERVER_PORT);
+            // One Command per Connection
+            try (Socket socket = new Socket(serverIp, serverPort);
                  BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                  PrintWriter writer = new PrintWriter(socket.getOutputStream(), true)) {
 
-                // Send the command
                 writer.println(command);
-
-                // Read the response
                 String response = reader.readLine();
+
                 if (response == null) {
                     messageLabel.setText("No response from server.");
                     return;
                 }
 
                 if ("REGISTER_SUCCESS".equalsIgnoreCase(response)) {
-                    JOptionPane.showMessageDialog(frame, "Registration successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(frame, "Registration successful!", 
+                                                  "Success", JOptionPane.INFORMATION_MESSAGE);
                     frame.dispose();
-                    new LoginClient(); // if registered successful we navigate back to the login client
+                    // Go to login page with the same IP/port
+                    SwingUtilities.invokeLater(() -> new LoginClient(serverIp, serverPort));
                 } else {
-                    // Could be "User already exists" or other error
                     messageLabel.setText(response);
                 }
 
@@ -100,13 +117,11 @@ public class RegistrationClient {
             }
         });
 
-        // login button stuff
         loginButton.addActionListener(e -> {
             frame.dispose();
-            new LoginClient();
+            SwingUtilities.invokeLater(() -> new LoginClient(serverIp, serverPort));
         });
 
-        // Layout form fields - don't touch
         gbc.gridx = 0; gbc.gridy = 0; formPanel.add(userIdLabel, gbc);
         gbc.gridx = 1; gbc.gridy = 0; formPanel.add(userIdField, gbc);
 
@@ -125,9 +140,5 @@ public class RegistrationClient {
 
         frame.add(formPanel, BorderLayout.CENTER);
         frame.setVisible(true);
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(RegistrationClient::new);
     }
 }
