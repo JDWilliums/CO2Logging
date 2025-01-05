@@ -1,15 +1,13 @@
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class MainPage {
-    private final String userId; // Store the logged-in user's ID
-    private final JFrame frame;
+    private final String userId; // the user id of the logged in user
+    private final JFrame frame; // GUI stuff - dont touch
     private final JTable table;
     private final DefaultTableModel tableModel;
     private static final String CSV_FILE = "co2_readings.csv";
@@ -22,10 +20,8 @@ public class MainPage {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(600, 400);
         frame.setLocationRelativeTo(null);
-
         // Set layout
         frame.setLayout(new BorderLayout(10, 10));
-
         // Add logo
         JPanel logoPanel = new JPanel();
         logoPanel.setBackground(Color.WHITE);
@@ -34,10 +30,8 @@ public class MainPage {
         JLabel logoLabel = new JLabel(new ImageIcon(scaledImage));
         logoPanel.add(logoLabel);
         frame.add(logoPanel, BorderLayout.NORTH);
-
         // Sets window icon
         frame.setIconImage(originalIcon.getImage());
-
         // Main content panel
         JPanel contentPanel = new JPanel();
         contentPanel.setLayout(new BorderLayout(10, 10));
@@ -45,13 +39,10 @@ public class MainPage {
         // Add "Create Reading" form
         JPanel formPanel = new JPanel();
         formPanel.setLayout(new GridLayout(3, 2, 10, 10));
-
         JLabel postcodeLabel = new JLabel("Postcode:");
         JTextField postcodeField = new JTextField();
-
         JLabel co2Label = new JLabel("CO2 Concentration:");
         JTextField co2Field = new JTextField();
-
         JButton submitButton = new JButton("Submit Reading");
 
         formPanel.add(postcodeLabel);
@@ -78,7 +69,7 @@ public class MainPage {
 
         frame.add(contentPanel, BorderLayout.CENTER);
 
-        // Add action listeners
+        // action listeners
         submitButton.addActionListener(e -> createReading(postcodeField.getText().trim(), co2Field.getText().trim()));
         refreshButton.addActionListener(e -> loadCSVData());
 
@@ -100,7 +91,7 @@ public class MainPage {
             String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
 
             try (FileWriter writer = new FileWriter(CSV_FILE, true);
-                 BufferedWriter bufferedWriter = new BufferedWriter(writer)) {
+                BufferedWriter bufferedWriter = new BufferedWriter(writer)) {
                 bufferedWriter.write(String.format("%s,%s,%s,%.2f\n", timestamp, userId, postcode, co2Value));
             }
 
@@ -113,7 +104,7 @@ public class MainPage {
     }
 
     private synchronized void loadCSVData() {
-        tableModel.setRowCount(0); // Clear the table
+        tableModel.setRowCount(0); // Clears the table
         try (BufferedReader reader = new BufferedReader(new FileReader(CSV_FILE))) {
             String line;
             reader.readLine(); // Skip header
